@@ -6,24 +6,32 @@ package academic.model;
 /**
  * @author 12S24012 Choqy Pananda Sirait
  *
- * Kelas ini menyimpan data pembukaan kelas (course opening):
- * satu mata kuliah dibuka pada tahun/semester tertentu
- * dan diajar oleh satu atau lebih dosen.
- *
- * Tidak ada perubahan dari versi sebelumnya — sudah benar.
+ * Menyimpan data pembukaan kelas (course opening).
+ * Satu mata kuliah bisa dibuka di banyak semester berbeda.
+ * Setiap pembukaan memiliki dosen pengampu yang bisa lebih dari satu.
  */
 public class CourseOpening {
 
-    // field: kode matkul, tahun ajaran, semester, daftar inisial dosen (dipisah koma)
-    String code, year, semester, lecturers;
+    // Kode matkul yang dibuka, misal "12S1101"
+    String code;
+
+    // Tahun ajaran, misal "2020/2021"
+    String year;
+
+    // Semester: "odd" (ganjil) atau "even" (genap)
+    String semester;
+
+    // Inisial dosen pengampu, bisa lebih dari satu dipisah koma
+    // Contoh: "IUS" atau "PAT,IUS,RSL"
+    String lecturers;
 
     /**
-     * Constructor: dipanggil saat course-open diproses di Driver1.
+     * Constructor dipanggil saat perintah course-open diproses di Driver1.
      *
-     * @param code      kode matkul, misal "12S1101"
-     * @param year      tahun ajaran, misal "2020/2021"
-     * @param semester  semester, "odd" atau "even"
-     * @param lecturers inisial dosen, misal "IUS" atau "PAT,IUS,RSL"
+     * @param code      kode matkul
+     * @param year      tahun ajaran
+     * @param semester  "odd" atau "even"
+     * @param lecturers inisial dosen (bisa dipisah koma jika lebih dari satu)
      */
     public CourseOpening(String code, String year,
                          String semester, String lecturers) {
@@ -33,25 +41,35 @@ public class CourseOpening {
         this.lecturers = lecturers;
     }
 
-    /** Getter kode matkul — dipakai di showCourseHistory untuk mencocokkan kode. */
+    /**
+     * Getter kode matkul.
+     * Dipakai di showCourseHistory untuk mencocokkan opening dengan kode yang dicari.
+     * Dipakai di Driver1 saat memfilter opening: co.getCourseCode().equals(code)
+     */
     public String getCourseCode() {
         return code;
     }
 
-    /** Getter tahun ajaran — dipakai di showCourseHistory untuk output. */
+    /**
+     * Getter tahun ajaran.
+     * Dipakai di showCourseHistory untuk ditampilkan dan untuk sorting.
+     */
     public String getYear() {
         return year;
     }
 
-    /** Getter semester — dipakai di showCourseHistory untuk output. */
+    /**
+     * Getter semester.
+     * Dipakai di showCourseHistory untuk ditampilkan dan untuk sorting.
+     */
     public String getSemester() {
         return semester;
     }
 
     /**
-     * Getter string dosen — dipakai di showCourseHistory.
-     * Contoh nilai: "IUS" atau "PAT,IUS,RSL"
-     * Akan di-split dengan koma untuk ditampilkan satu per satu.
+     * Getter string dosen pengampu.
+     * Dipakai di showCourseHistory, di-split dengan koma untuk
+     * menampilkan setiap dosen dalam format "INISIAL (email)".
      */
     public String getLecturers() {
         return lecturers;

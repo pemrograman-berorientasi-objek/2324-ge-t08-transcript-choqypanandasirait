@@ -6,29 +6,40 @@ package academic.model;
 /**
  * @author 12S24012 Choqy Pananda Sirait
  *
- * Kelas ini menyimpan data satu enrollment (pengambilan mata kuliah oleh mahasiswa).
- * Satu mahasiswa bisa memiliki lebih dari satu enrollment untuk matkul yang sama
- * (jika mengambil ulang di semester/tahun berbeda).
+ * Menyimpan data satu pengambilan mata kuliah oleh seorang mahasiswa
+ * pada tahun ajaran dan semester tertentu.
  *
- * Tidak ada perubahan dari versi sebelumnya — sudah benar.
+ * Satu mahasiswa bisa memiliki lebih dari satu Enrollment untuk matkul
+ * yang sama, jika mengambil ulang di tahun/semester yang berbeda.
  */
 public class Enrollment {
 
-    // field identitas: kode matkul, id mahasiswa, tahun, semester
-    String code, studentId, year, semester;
+    // Kode matkul yang diambil, misal "12S1101"
+    String code;
 
-    // nilai reguler (diisi lewat enrollment-grade)
+    // NIM mahasiswa yang mengambil, misal "12S20001"
+    String studentId;
+
+    // Tahun ajaran pengambilan, misal "2020/2021"
+    String year;
+
+    // Semester pengambilan: "odd" atau "even"
+    String semester;
+
+    // Nilai reguler yang diberikan dosen (null jika belum dinilai)
     String grade;
 
-    // nilai remedial, null jika tidak ada remedial (diisi lewat enrollment-remedial)
+    // Nilai remedial (null jika tidak ada remedial)
+    // Remedial hanya bisa diset SETELAH grade sudah ada
     String remedial;
 
     /**
-     * Constructor: dipanggil saat enrollment-add diproses.
+     * Constructor dipanggil saat perintah enrollment-add diproses.
+     * grade dan remedial awalnya null (belum ada nilai).
      *
      * @param code      kode matkul
      * @param studentId NIM mahasiswa
-     * @param year      tahun ajaran, misal "2020/2021"
+     * @param year      tahun ajaran
      * @param semester  "odd" atau "even"
      */
     public Enrollment(String code, String studentId,
@@ -37,13 +48,19 @@ public class Enrollment {
         this.studentId = studentId;
         this.year      = year;
         this.semester  = semester;
-        // grade dan remedial awalnya null
+        // grade dan remedial default null
     }
 
     /**
-     * Mengecek apakah enrollment ini sesuai dengan 4 parameter.
+     * Mengecek apakah enrollment ini cocok dengan 4 parameter identitas.
      * Dipakai saat enrollment-grade dan enrollment-remedial untuk
-     * menemukan enrollment yang tepat dari ArrayList.
+     * menemukan enrollment yang tepat dari ArrayList enrollments.
+     *
+     * @param a kode matkul
+     * @param b NIM mahasiswa
+     * @param c tahun ajaran
+     * @param d semester
+     * @return true jika semua 4 field cocok
      */
     public boolean match(String a, String b, String c, String d) {
         return code.equals(a)
@@ -54,8 +71,11 @@ public class Enrollment {
 
     /**
      * Mengecek apakah enrollment ini berada di dalam CourseOpening tertentu.
-     * Dipakai di showCourseHistory untuk menampilkan daftar mahasiswa
-     * yang ada di suatu opening.
+     * Cocok jika kode matkul, tahun, dan semester sama.
+     * Dipakai di showCourseHistory untuk mencetak daftar mahasiswa per opening.
+     *
+     * @param co CourseOpening yang dibandingkan
+     * @return true jika enrollment ini ada di opening co
      */
     public boolean sameOpening(CourseOpening co) {
         return code.equals(co.getCourseCode())
@@ -63,80 +83,102 @@ public class Enrollment {
                 && semester.equals(co.getSemester());
     }
 
-    /** Setter nilai reguler — dipanggil saat enrollment-grade. */
+    /**
+     * Set nilai reguler.
+     * Dipanggil saat perintah enrollment-grade diproses.
+     */
     public void setGrade(String grade) {
         this.grade = grade;
     }
 
     /**
-     * Setter nilai remedial — dipanggil saat enrollment-remedial.
-     * Catatan: remedial hanya bisa diset SETELAH grade sudah ada
-     * (dijamin oleh urutan input soal).
+     * Set nilai remedial.
+     * Dipanggil saat perintah enrollment-remedial diproses.
+     * PERHATIAN: di Driver1 sudah ada pengecekan bahwa remedial
+     * hanya bisa diset jika grade sudah ada (getGrade() != null).
      */
     public void setRemedial(String remedial) {
         this.remedial = remedial;
     }
 
-    /** Getter NIM mahasiswa — dipakai untuk filter di Driver1. */
+    /**
+     * Getter NIM mahasiswa.
+     * Dipakai di showStudentDetail dan showTranscript untuk filter
+     * enrollment berdasarkan mahasiswa: e.getStudentId().equals(id)
+     */
     public String getStudentId() {
         return studentId;
     }
 
-    /** Getter kode matkul — dipakai untuk mencari Course terkait. */
+    /**
+     * Getter kode matkul.
+     * Dipakai di showTranscript untuk mencocokkan enrollment dengan Course.
+     */
     public String getCourseCode() {
         return code;
     }
 
-    /** Getter tahun ajaran. */
+    /**
+     * Getter tahun ajaran.
+     * Dipakai di showTranscript untuk membandingkan enrollment mana yang terbaru.
+     */
     public String getYear() {
         return year;
     }
 
-    /** Getter semester. */
+    /**
+     * Getter semester.
+     * Dipakai di showTranscript untuk membandingkan urutan semester.
+     */
     public String getSemester() {
         return semester;
     }
 
     /**
-     * Getter nilai reguler (grade).
-     * Bisa null jika belum dinilai — dipakai untuk cek apakah
-     * enrollment sudah selesai (e.getGrade() != null).
+     * Getter nilai reguler.
+     * Bisa null jika belum dinilai.
+     * Dipakai untuk pengecekan: e.getGrade() != null
+     * artinya enrollment sudah selesai dan bisa dihitung GPA-nya.
      */
     public String getGrade() {
         return grade;
     }
 
     /**
-     * Mengembalikan nilai akhir yang berlaku:
-     * - Jika ada remedial → nilai remedial yang dipakai (karena lebih baik)
-     * - Jika tidak ada → nilai reguler
+     * Mengembalikan nilai akhir yang berlaku untuk perhitungan GPA:
+     * - Jika ada remedial -> kembalikan remedial (remedial menggantikan grade)
+     * - Jika tidak ada remedial -> kembalikan grade
      *
-     * Dipakai untuk perhitungan GPA (convert(e.finalGrade())).
+     * Dipakai di convert(e.finalGrade()) untuk menghitung bobot nilai.
      */
     public String finalGrade() {
         if (remedial != null) {
-            return remedial; // remedial menggantikan grade lama
+            return remedial;
         }
         return grade;
     }
 
     /**
-     * Format output enrollment:
-     * - Jika ada remedial: kode|NIM|tahun|semester|REMEDIAL(GRADE)
-     *   contoh: 12S1101|12S20003|2020/2021|odd|AB(B)
-     *   artinya: nilai awal B, diperbaiki jadi AB lewat remedial
-     * - Jika tidak ada remedial: kode|NIM|tahun|semester|GRADE
-     *   contoh: 12S1101|12S20002|2020/2021|odd|B
+     * Format output enrollment saat dicetak.
+     *
+     * Jika ada remedial:
+     *   kode|NIM|tahun|semester|REMEDIAL(GRADE)
+     *   Contoh: 12S1101|12S20003|2020/2021|odd|AB(B)
+     *   Artinya: nilai reguler B, diperbaiki jadi AB lewat remedial
+     *
+     * Jika tidak ada remedial:
+     *   kode|NIM|tahun|semester|GRADE
+     *   Contoh: 12S1101|12S20002|2020/2021|odd|B
      */
     @Override
     public String toString() {
         if (remedial != null) {
-            // format: NILAI_BARU(NILAI_LAMA) — remedial ada, tampilkan keduanya
+            // Format: NILAI_BARU(NILAI_LAMA)
             return code + "|" + studentId + "|"
                     + year + "|" + semester + "|"
                     + remedial + "(" + grade + ")";
         }
-        // format biasa tanpa remedial
+        // Format biasa tanpa remedial
         return code + "|" + studentId + "|"
                 + year + "|" + semester + "|" + grade;
     }

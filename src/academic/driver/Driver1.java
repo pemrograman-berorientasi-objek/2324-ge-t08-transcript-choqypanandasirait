@@ -9,11 +9,11 @@ import academic.model.*;
 /**
  * @author 12S24012 Choqy Pananda Sirait
  *
- * Main program Academic Simulator — T08 Transcript.
+ * Main program Academic Simulator - T08 Transcript.
  *
  * Nested Construct yang digunakan: STATIC NESTED CLASS (Lecturer)
- * → Lecturer tidak butuh akses ke instance Driver1, cukup static nested.
- * → Ini memenuhi syarat tugas "aplikasikan salah satu bentuk Nested Constructs".
+ * Lecturer tidak butuh akses ke instance Driver1, cukup static nested.
+ * Ini memenuhi syarat tugas "aplikasikan salah satu bentuk Nested Constructs".
  */
 public class Driver1 {
 
@@ -22,11 +22,11 @@ public class Driver1 {
         Scanner input = new Scanner(System.in);
 
         // Daftar semua data yang tersimpan selama program berjalan
-        ArrayList<Lecturer>       lecturers   = new ArrayList<>();
-        ArrayList<Course>         courses     = new ArrayList<>();
-        ArrayList<Student>        students    = new ArrayList<>();
-        ArrayList<CourseOpening>  openings    = new ArrayList<>();
-        ArrayList<Enrollment>     enrollments = new ArrayList<>();
+        ArrayList<Lecturer>      lecturers   = new ArrayList<>();
+        ArrayList<Course>        courses     = new ArrayList<>();
+        ArrayList<Student>       students    = new ArrayList<>();
+        ArrayList<CourseOpening> openings    = new ArrayList<>();
+        ArrayList<Enrollment>    enrollments = new ArrayList<>();
 
         // Baca input baris per baris sampai ketemu "---"
         while (true) {
@@ -39,22 +39,22 @@ public class Driver1 {
             }
 
             // Pecah baris berdasarkan karakter '#'
-            // data[0] = perintah, data[1..n] = parameter
+            // data[0] = nama perintah, data[1..n] = parameter perintah
             String[] data = line.split("#");
 
             switch (data[0]) {
 
                 case "lecturer-add":
                     // Tambah dosen baru ke list
-                    // data[1]=id, data[2]=nama, data[3]=inisial, data[4]=email, data[5]=prodi
+                    // Format: lecturer-add#id#nama#inisial#email#prodi
                     lecturers.add(new Lecturer(
                             data[1], data[2], data[3],
                             data[4], data[5]));
                     break;
 
                 case "course-add":
-                    // Tambah matkul baru ke list
-                    // data[1]=kode, data[2]=nama, data[3]=sks, data[4]=nilai minimum
+                    // Tambah mata kuliah baru ke list
+                    // Format: course-add#kode#nama#sks#nilaiMinimum
                     courses.add(new Course(
                             data[1], data[2],
                             Integer.parseInt(data[3]),
@@ -63,15 +63,15 @@ public class Driver1 {
 
                 case "student-add":
                     // Tambah mahasiswa baru ke list
-                    // data[1]=NIM, data[2]=nama, data[3]=angkatan, data[4]=prodi
+                    // Format: student-add#NIM#nama#angkatan#prodi
                     students.add(new Student(
                             data[1], data[2],
                             data[3], data[4]));
                     break;
 
                 case "course-open":
-                    // Buka kelas baru untuk matkul tertentu
-                    // data[1]=kode, data[2]=tahun, data[3]=semester, data[4]=dosen(,dosen)
+                    // Buka kelas baru untuk mata kuliah tertentu
+                    // Format: course-open#kode#tahun#semester#inisialDosen(,inisialDosen)
                     openings.add(new CourseOpening(
                             data[1], data[2],
                             data[3], data[4]));
@@ -79,7 +79,7 @@ public class Driver1 {
 
                 case "enrollment-add":
                     // Daftarkan mahasiswa ke suatu kelas
-                    // data[1]=kode, data[2]=NIM, data[3]=tahun, data[4]=semester
+                    // Format: enrollment-add#kodeMatkul#NIM#tahun#semester
                     enrollments.add(new Enrollment(
                             data[1], data[2],
                             data[3], data[4]));
@@ -87,7 +87,7 @@ public class Driver1 {
 
                 case "enrollment-grade":
                     // Set nilai reguler untuk enrollment yang cocok
-                    // data[1]=kode, data[2]=NIM, data[3]=tahun, data[4]=semester, data[5]=nilai
+                    // Format: enrollment-grade#kodeMatkul#NIM#tahun#semester#nilai
                     for (Enrollment e : enrollments) {
                         if (e.match(data[1], data[2], data[3], data[4])) {
                             e.setGrade(data[5]);
@@ -96,11 +96,10 @@ public class Driver1 {
                     break;
 
                 case "enrollment-remedial":
-                    // Set nilai remedial (hanya jika grade sudah ada)
-                    // data[1]=kode, data[2]=NIM, data[3]=tahun, data[4]=semester, data[5]=nilai remedial
+                    // Set nilai remedial - HANYA jika nilai reguler sudah ada.
+                    // Jika remedial datang sebelum grade, perintah ini diabaikan.
+                    // Format: enrollment-remedial#kodeMatkul#NIM#tahun#semester#nilaiRemedial
                     for (Enrollment e : enrollments) {
-                        // Syarat: enrollment cocok DAN sudah punya grade
-                        // (remedial tidak bisa diberikan sebelum nilai reguler ada)
                         if (e.match(data[1], data[2], data[3], data[4])
                                 && e.getGrade() != null) {
                             e.setRemedial(data[5]);
@@ -109,14 +108,16 @@ public class Driver1 {
                     break;
 
                 case "student-details":
-                    // Tampilkan detail performa mahasiswa (semua enrollment yang sudah dinilai)
+                    // Tampilkan GPA kumulatif mahasiswa dari semua enrollment yang sudah dinilai
+                    // Format: student-details#NIM
                     showStudentDetail(
                             data[1], students,
                             courses, enrollments);
                     break;
 
                 case "course-history":
-                    // Tampilkan riwayat pembukaan kelas suatu matkul
+                    // Tampilkan riwayat semua pembukaan kelas suatu mata kuliah
+                    // Format: course-history#kodeMatkul
                     showCourseHistory(
                             data[1], openings,
                             courses, lecturers,
@@ -125,6 +126,7 @@ public class Driver1 {
 
                 case "student-transcript":
                     // Tampilkan transkrip mahasiswa (hanya pengambilan terakhir per matkul)
+                    // Format: student-transcript#NIM
                     showTranscript(
                             data[1], students,
                             courses, enrollments);
@@ -132,20 +134,26 @@ public class Driver1 {
             }
         }
 
-        // ── Output akhir program (setelah "---") ──
-        // Cetak semua dosen
-        for (Lecturer l : lecturers)    System.out.println(l);
-        // Cetak semua matkul
-        for (Course c : courses)        System.out.println(c);
-        // Cetak semua mahasiswa
-        for (Student s : students)      System.out.println(s);
-        // Cetak semua enrollment (sudah dinilai maupun belum)
-        // Catatan: enrollment yang belum dinilai (grade==null) tetap dicetak
-        // tapi formatnya akan null — perlu dicek apakah ini sesuai expected output.
-        // Dari test case, semua enrollment yang dicetak sudah punya grade,
-        // jadi kita cetak semua yang grade-nya tidak null.
+        // Output akhir program (dicetak setelah semua input selesai)
+
+        // 1. Cetak semua dosen
+        for (Lecturer l : lecturers) {
+            System.out.println(l);
+        }
+
+        // 2. Cetak semua mata kuliah
+        for (Course c : courses) {
+            System.out.println(c);
+        }
+
+        // 3. Cetak semua mahasiswa
+        for (Student s : students) {
+            System.out.println(s);
+        }
+
+        // 4. Cetak semua enrollment yang sudah punya nilai
+        //    Enrollment yang belum dinilai (grade==null) tidak ditampilkan
         for (Enrollment e : enrollments) {
-            // Hanya cetak enrollment yang sudah punya nilai
             if (e.getGrade() != null) {
                 System.out.println(e);
             }
@@ -155,12 +163,14 @@ public class Driver1 {
     }
 
     // ============================================================
-    // student-details
-    // Menampilkan GPA kumulatif mahasiswa berdasarkan
-    // SEMUA enrollment yang sudah dinilai (bukan hanya yang terbaru).
+    // METHOD: showStudentDetail (perintah: student-details)
     //
-    // Format: NIM|Nama|Angkatan|Prodi|GPA|TotalSKS
-    // contoh: 12S20001|Marcelino Manalu|2020|Information Systems|3.00|7
+    // Menampilkan GPA kumulatif mahasiswa berdasarkan SEMUA
+    // enrollment yang sudah dinilai, termasuk jika matkul diambil
+    // lebih dari sekali (semua attempt dihitung, bukan hanya terbaru).
+    //
+    // Format output: NIM|Nama|Angkatan|Prodi|GPA|TotalSKS
+    // Contoh: 12S20001|Marcelino Manalu|2020|Information Systems|3.00|7
     // ============================================================
     static void showStudentDetail(
             String id,
@@ -170,52 +180,50 @@ public class Driver1 {
 
         for (Student s : students) {
 
-            // Cari mahasiswa yang NIM-nya cocok
+            // Cari mahasiswa berdasarkan NIM
             if (s.getId().equals(id)) {
 
-                double total = 0; // akumulasi: bobot_nilai × SKS
-                int    sks   = 0; // total SKS yang sudah ditempuh
+                double total = 0; // akumulasi bobot x SKS
+                int    sks   = 0; // total SKS dari semua enrollment yang sudah dinilai
 
                 for (Enrollment e : enrollments) {
 
-                    // Hitung SEMUA enrollment milik mahasiswa ini yang sudah dinilai
-                    // (berbeda dengan transcript yang hanya ambil yang terakhir per matkul)
-                    if (e.getStudentId().equals(id)
-                            && e.getGrade() != null) {
+                    // Filter: milik mahasiswa ini dan sudah punya nilai reguler
+                    if (e.getStudentId().equals(id) && e.getGrade() != null) {
 
-                        // Cari matkul untuk mendapatkan jumlah SKS-nya
+                        // Ambil data matkul untuk mendapatkan jumlah SKS
                         Course c = findCourse(courses, e.getCourseCode());
 
-                        // Kalikan bobot nilai akhir dengan SKS matkul tersebut
+                        // Bobot = nilai_akhir x SKS
                         // finalGrade() mengembalikan remedial jika ada, atau grade biasa
                         total += convert(e.finalGrade()) * c.getCredit();
 
-                        // Tambahkan SKS matkul ke total SKS
+                        // Tambah ke total SKS
                         sks += c.getCredit();
                     }
                 }
 
-                // Hitung GPA = total bobot / total SKS
+                // GPA = total bobot / total SKS
                 double gpa = (sks == 0) ? 0 : total / sks;
 
-                // Cetak: format Student (toString) + |GPA|SKS
-                // %.2f = dua angka desimal, contoh: 3.00
+                // toString() Student menghasilkan "NIM|Nama|Angkatan|Prodi"
+                // disambung dengan "|GPA|SKS"
                 System.out.printf("%s|%.2f|%d\n", s, gpa, sks);
             }
         }
     }
 
     // ============================================================
-    // student-transcript
-    // Menampilkan transkrip mahasiswa:
-    // 1. Baris pertama: ringkasan GPA + SKS (hanya dari pengambilan TERAKHIR tiap matkul)
-    // 2. Baris berikutnya: daftar enrollment terbaru tiap matkul, urut historis
+    // METHOD: showTranscript (perintah: student-transcript)
     //
-    // "Pengambilan terakhir" = enrollment dengan tahun/semester paling akhir
-    // untuk matkul yang sama milik mahasiswa yang sama.
+    // Menampilkan transkrip mahasiswa dengan aturan:
+    // 1. Jika matkul diambil lebih dari sekali, hanya pengambilan
+    //    TERAKHIR (tahun/semester paling akhir) yang ditampilkan.
+    // 2. Daftar enrollment diurutkan historis: tahun lama duluan;
+    //    jika tahun sama, odd sebelum even.
     //
-    // Format ringkasan: NIM|Nama|Angkatan|Prodi|GPA|SKS
-    // Format enrollment: kode|NIM|tahun|semester|nilai (atau nilai_remedial(nilai_lama))
+    // Format baris 1: NIM|Nama|Angkatan|Prodi|GPA|TotalSKS
+    // Format baris berikutnya: satu baris per enrollment terpilih
     // ============================================================
     static void showTranscript(
             String id,
@@ -225,75 +233,71 @@ public class Driver1 {
 
         for (Student s : students) {
 
-            // Cari mahasiswa yang NIM-nya cocok
+            // Cari mahasiswa berdasarkan NIM
             if (s.getId().equals(id)) {
 
-                // List enrollment terpilih (satu per matkul — yang terbaru)
+                // List enrollment terpilih: satu per matkul (yang terbaru)
                 ArrayList<Enrollment> list = new ArrayList<>();
 
-                // Iterasi setiap matkul untuk mencari enrollment terbaru mahasiswa ini
+                // Iterasi setiap matkul untuk menemukan enrollment terbaru mahasiswa ini
                 for (Course c : courses) {
 
-                    Enrollment best = null; // enrollment terbaik (terbaru) untuk matkul ini
+                    // best = kandidat enrollment terbaru untuk matkul ini
+                    Enrollment best = null;
 
                     for (Enrollment e : enrollments) {
 
-                        // Filter: hanya enrollment milik mahasiswa ini,
-                        // untuk matkul c, dan yang sudah punya nilai
+                        // Filter: milik mahasiswa ini, untuk matkul c, sudah dinilai
                         if (e.getStudentId().equals(id)
                                 && e.getCourseCode().equals(c.getCode())
                                 && e.getGrade() != null) {
 
                             if (best == null) {
-                                // Enrollment pertama yang ditemukan → jadikan kandidat awal
+                                // Kandidat pertama langsung dijadikan best
                                 best = e;
                             } else {
-                                // Bandingkan tahun: ambil tahun awal dari "2020/2021" → 2020
                                 int y1 = getYear(e.getYear());
                                 int y2 = getYear(best.getYear());
 
                                 if (y1 > y2) {
-                                    // Tahun e lebih baru → ganti best
+                                    // e lebih baru (tahun lebih besar) -> ganti best
                                     best = e;
                                 } else if (y1 == y2
                                         && semValue(e.getSemester())
                                            > semValue(best.getSemester())) {
-                                    // Tahun sama tapi semester e lebih akhir
-                                    // (even=2 > odd=1) → ganti best
+                                    // Tahun sama, semester e lebih akhir (even > odd) -> ganti best
                                     best = e;
                                 }
-                                // Jika e lebih lama → abaikan
+                                // Jika e lebih lama -> biarkan best tidak berubah
                             }
                         }
                     }
 
-                    // Jika ada enrollment yang ditemukan untuk matkul ini → tambahkan
+                    // Jika ada enrollment untuk matkul ini -> tambahkan ke list
                     if (best != null) {
                         list.add(best);
                     }
                 }
 
-                // Urutkan list secara historis:
-                // matkul yang diselesaikan lebih awal muncul lebih dulu
+                // Urutkan list secara historis (yang lebih lama tampil lebih dulu)
                 Collections.sort(list, new Comparator<Enrollment>() {
                     @Override
                     public int compare(Enrollment a, Enrollment b) {
-
                         int ya = getYear(a.getYear());
                         int yb = getYear(b.getYear());
 
-                        // Bandingkan tahun dulu
+                        // Bandingkan tahun terlebih dahulu (ascending)
                         if (ya != yb) {
-                            return ya - yb; // ascending: yang lebih lama duluan
+                            return ya - yb;
                         }
 
-                        // Jika tahun sama → bandingkan semester
-                        // odd(1) < even(2) → odd tampil lebih dulu
+                        // Jika tahun sama, bandingkan semester
+                        // odd(1) < even(2) -> odd tampil lebih dulu
                         return semValue(a.getSemester()) - semValue(b.getSemester());
                     }
                 });
 
-                // Hitung GPA dari enrollment yang terpilih (satu per matkul)
+                // Hitung GPA hanya dari enrollment yang terpilih
                 double total = 0;
                 int    sks   = 0;
 
@@ -305,10 +309,10 @@ public class Driver1 {
 
                 double gpa = (sks == 0) ? 0 : total / sks;
 
-                // Cetak baris ringkasan: format Student|GPA|SKS
+                // Cetak baris ringkasan
                 System.out.printf("%s|%.2f|%d\n", s, gpa, sks);
 
-                // Cetak masing-masing enrollment terpilih
+                // Cetak setiap enrollment yang terpilih (sudah terurut historis)
                 for (Enrollment e : list) {
                     System.out.println(e);
                 }
@@ -317,13 +321,17 @@ public class Driver1 {
     }
 
     // ============================================================
-    // course-history
-    // Menampilkan riwayat pembukaan kelas suatu matkul.
-    // Urutan sesuai urutan penambahan opening (tidak diurutkan ulang).
+    // METHOD: showCourseHistory (perintah: course-history)
+    //
+    // Menampilkan riwayat semua pembukaan kelas suatu mata kuliah.
+    //
+    // URUTAN OPENING: semester dulu (odd sebelum even),
+    // lalu tahun ascending dalam semester yang sama.
+    // Contoh: 2020/2021 odd -> 2021/2022 odd -> 2020/2021 even
     //
     // Format per opening:
-    //   kode|nama|sks|nilai_min|tahun|semester|INISIAL (email)[,INISIAL (email)]
-    // Diikuti daftar enrollment yang ada di opening tersebut.
+    //   kode|nama|sks|nilaiMin|tahun|semester|INISIAL (email)[,INISIAL (email)]
+    // Diikuti daftar enrollment yang sudah dinilai di opening tersebut.
     // ============================================================
     static void showCourseHistory(
             String code,
@@ -332,52 +340,66 @@ public class Driver1 {
             ArrayList<Lecturer> lecturers,
             ArrayList<Enrollment> enrollments) {
 
-        // Iterasi setiap opening (urutan sesuai ArrayList → sesuai urutan input)
+        // Langkah 1: filter hanya opening untuk matkul yang diminta
+        ArrayList<CourseOpening> filtered = new ArrayList<>();
         for (CourseOpening co : openings) {
-
-            // Hanya proses opening untuk matkul yang diminta
             if (co.getCourseCode().equals(code)) {
+                filtered.add(co);
+            }
+        }
 
-                // Cari data matkul dari kode
-                Course c = findCourse(courses, code);
-
-                // Bangun string daftar dosen
-                // co.getLecturers() bisa berisi "IUS" atau "PAT,IUS,RSL"
-                String text = "";
-                String[] arr = co.getLecturers().split(","); // pecah berdasarkan koma
-
-                for (int i = 0; i < arr.length; i++) {
-
-                    // Cari dosen berdasarkan inisial
-                    Lecturer l = findLecturer(lecturers, arr[i]);
-
-                    // Format: INISIAL (email)
-                    text += l.getInitial() + " (" + l.getEmail() + ")";
-
-                    // Tambahkan koma jika bukan dosen terakhir
-                    if (i != arr.length - 1) {
-                        text += ",";
-                    }
+        // Langkah 2: urutkan opening
+        // Aturan: semester dulu (odd=1 < even=2), lalu tahun ascending
+        Collections.sort(filtered, new Comparator<CourseOpening>() {
+            @Override
+            public int compare(CourseOpening a, CourseOpening b) {
+                // Prioritas 1: semester (odd sebelum even)
+                int sa = semValue(a.getSemester()); // odd=1, even=2
+                int sb = semValue(b.getSemester());
+                if (sa != sb) {
+                    return sa - sb;
                 }
+                // Prioritas 2: tahun ascending (lama duluan)
+                return getYear(a.getYear()) - getYear(b.getYear());
+            }
+        });
 
-                // Cetak baris header opening:
-                // kode|nama|sks|nilai_min|tahun|semester|daftar_dosen
-                System.out.println(c + "|" + co.getYear() + "|" + co.getSemester() + "|" + text);
+        // Langkah 3: cetak setiap opening beserta enrollment-nya
+        for (CourseOpening co : filtered) {
 
-                // Cetak semua enrollment yang ada di opening ini
-                for (Enrollment e : enrollments) {
-                    if (e.sameOpening(co) && e.getGrade() != null) {
-                        // Hanya tampilkan enrollment yang sudah dinilai
-                        System.out.println(e);
-                    }
+            // Ambil data mata kuliah
+            Course c = findCourse(courses, code);
+
+            // Bangun string daftar dosen
+            // co.getLecturers() bisa "IUS" atau "PAT,IUS,RSL"
+            String text = "";
+            String[] arr = co.getLecturers().split(",");
+
+            for (int i = 0; i < arr.length; i++) {
+                // Cari dosen berdasarkan inisial
+                Lecturer l = findLecturer(lecturers, arr[i]);
+                // Format tiap dosen: INISIAL (email)
+                text += l.getInitial() + " (" + l.getEmail() + ")";
+                // Pisahkan dengan koma jika bukan yang terakhir
+                if (i != arr.length - 1) {
+                    text += ",";
+                }
+            }
+
+            // Cetak header opening: kode|nama|sks|nilaiMin|tahun|semester|daftar_dosen
+            System.out.println(c + "|" + co.getYear() + "|" + co.getSemester() + "|" + text);
+
+            // Cetak semua enrollment di opening ini yang sudah dinilai
+            for (Enrollment e : enrollments) {
+                if (e.sameOpening(co) && e.getGrade() != null) {
+                    System.out.println(e);
                 }
             }
         }
     }
 
     // ============================================================
-    // Helper: cari Course berdasarkan kode
-    // Mengembalikan null jika tidak ditemukan
+    // HELPER: cari Course berdasarkan kode matkul
     // ============================================================
     static Course findCourse(ArrayList<Course> list, String code) {
         for (Course c : list) {
@@ -389,8 +411,7 @@ public class Driver1 {
     }
 
     // ============================================================
-    // Helper: cari Lecturer berdasarkan inisial
-    // Mengembalikan null jika tidak ditemukan
+    // HELPER: cari Lecturer berdasarkan inisial
     // ============================================================
     static Lecturer findLecturer(ArrayList<Lecturer> list, String initial) {
         for (Lecturer l : list) {
@@ -402,8 +423,8 @@ public class Driver1 {
     }
 
     // ============================================================
-    // Helper: konversi nilai huruf ke bobot angka
-    // Dipakai untuk perhitungan GPA
+    // HELPER: konversi nilai huruf ke bobot angka (untuk hitung GPA)
+    // A=4.0, AB=3.5, B=3.0, BC=2.5, C=2.0, D=1.0
     // ============================================================
     static double convert(String g) {
         switch (g) {
@@ -413,56 +434,52 @@ public class Driver1 {
             case "BC": return 2.5;
             case "C":  return 2.0;
             case "D":  return 1.0;
-            default:   return 0.0; // nilai tidak dikenal → 0
+            default:   return 0.0;
         }
     }
 
     // ============================================================
-    // Helper: ambil tahun awal dari string "2020/2021" → 2020
-    // Dipakai untuk membandingkan urutan tahun enrollment
+    // HELPER: ambil tahun awal dari string tahun ajaran
+    // "2020/2021" -> 2020
     // ============================================================
     static int getYear(String s) {
         return Integer.parseInt(s.split("/")[0]);
     }
 
     // ============================================================
-    // Helper: konversi semester ke angka untuk perbandingan urutan
+    // HELPER: konversi semester ke angka
     // "odd" (ganjil) = 1, "even" (genap) = 2
-    // Semester ganjil datang sebelum genap dalam satu tahun ajaran
+    // odd tampil lebih dulu dari even
     // ============================================================
     static int semValue(String s) {
         if (s.equals("odd")) return 1;
-        return 2; // "even"
+        return 2;
     }
 
     // ============================================================
     // STATIC NESTED CLASS: Lecturer
     //
-    // Alasan memakai Static Nested Class:
-    // - Lecturer adalah entitas yang logis diletakkan di dalam Driver1
-    //   karena hanya digunakan oleh Driver1 (tidak perlu file terpisah).
-    // - Static → tidak membutuhkan instance Driver1 untuk dibuat,
-    //   cukup akses via Driver1.Lecturer atau langsung karena satu file.
-    // - Ini memenuhi syarat tugas: "aplikasikan salah satu bentuk
-    //   Nested Constructs (Static Nested Class)".
+    // Mengapa Static Nested Class?
+    // - Lecturer hanya digunakan oleh Driver1, tidak perlu file terpisah.
+    // - "static" berarti tidak memerlukan instance Driver1 untuk dibuat.
+    // - Memenuhi syarat tugas: menggunakan bentuk Nested Constructs.
     // ============================================================
     static class Lecturer {
 
-        // field data dosen
-        String id;       // nomor induk dosen
-        String name;     // nama lengkap
-        String initial;  // inisial (kode singkat), misal "IUS"
-        String email;    // email kampus
-        String study;    // program studi pengampu
+        String id;       // nomor induk dosen, misal "0114129002"
+        String name;     // nama lengkap dosen
+        String initial;  // inisial/kode singkat, misal "IUS"
+        String email;    // alamat email, misal "iustisia.simbolon@del.ac.id"
+        String study;    // program studi pengampu, misal "Informatics"
 
         /**
-         * Constructor Lecturer.
+         * Constructor dipanggil saat perintah lecturer-add diproses.
          *
-         * @param id      nomor induk dosen, misal "0114129002"
-         * @param name    nama lengkap, misal "Iustisia Natalia Simbolon"
-         * @param initial inisial, misal "IUS"
-         * @param email   email, misal "iustisia.simbolon@del.ac.id"
-         * @param study   program studi, misal "Informatics"
+         * @param id      nomor induk dosen
+         * @param name    nama lengkap
+         * @param initial inisial dosen
+         * @param email   email dosen
+         * @param study   program studi
          */
         Lecturer(String id, String name, String initial,
                  String email, String study) {
@@ -473,26 +490,18 @@ public class Driver1 {
             this.study   = study;
         }
 
-        /**
-         * Getter inisial — dipakai di showCourseHistory
-         * untuk menampilkan "IUS (email)".
-         */
+        // Getter inisial dipakai di showCourseHistory untuk string "IUS (email)"
         String getInitial() {
             return initial;
         }
 
-        /**
-         * Getter email — dipakai di showCourseHistory
-         * untuk menampilkan "IUS (iustisia.simbolon@del.ac.id)".
-         */
+        // Getter email dipakai di showCourseHistory
         String getEmail() {
             return email;
         }
 
-        /**
-         * Format output dosen saat dicetak di akhir program:
-         * contoh → 0114129002|Iustisia Natalia Simbolon|IUS|iustisia.simbolon@del.ac.id|Informatics
-         */
+        // Format output: id|nama|inisial|email|prodi
+        // Contoh: 0114129002|Iustisia Natalia Simbolon|IUS|iustisia.simbolon@del.ac.id|Informatics
         @Override
         public String toString() {
             return id + "|" + name + "|" + initial + "|" + email + "|" + study;

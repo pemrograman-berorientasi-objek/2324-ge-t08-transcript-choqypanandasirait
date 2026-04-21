@@ -6,21 +6,29 @@ package academic.model;
 /**
  * @author 12S24012 Choqy Pananda Sirait
  *
- * Kelas ini menyimpan data satu mahasiswa.
- * Tidak ada perubahan dari versi sebelumnya — sudah benar.
+ * Menyimpan data seorang mahasiswa.
  */
 public class Student {
 
-    // field: NIM, nama, angkatan, program studi
-    String id, name, year, studyProgram;
+    // NIM mahasiswa, misal "12S20001"
+    String id;
+
+    // Nama lengkap, misal "Marcelino Manalu"
+    String name;
+
+    // Tahun angkatan masuk, misal "2020"
+    String year;
+
+    // Program studi, misal "Information Systems"
+    String studyProgram;
 
     /**
-     * Constructor: dipanggil saat student-add diproses di Driver1.
+     * Constructor dipanggil saat perintah student-add diproses di Driver1.
      *
-     * @param id           NIM mahasiswa, misal "12S20001"
-     * @param name         nama mahasiswa, misal "Marcelino Manalu"
-     * @param year         angkatan, misal "2020"
-     * @param studyProgram program studi, misal "Information Systems"
+     * @param id           NIM mahasiswa
+     * @param name         nama lengkap
+     * @param year         angkatan
+     * @param studyProgram program studi
      */
     public Student(String id, String name, String year, String studyProgram) {
         this.id           = id;
@@ -30,19 +38,21 @@ public class Student {
     }
 
     /**
-     * Getter NIM — dipakai untuk mencocokkan mahasiswa
-     * pada student-details dan student-transcript.
+     * Getter NIM.
+     * Dipakai untuk mencocokkan mahasiswa di showStudentDetail
+     * dan showTranscript: s.getId().equals(id)
      */
     public String getId() {
         return id;
     }
 
     /**
-     * Format output saat dicetak di akhir program:
-     * contoh → 12S20001|Marcelino Manalu|2020|Information Systems
+     * Format output mahasiswa saat dicetak.
+     * Contoh: 12S20001|Marcelino Manalu|2020|Information Systems
      *
-     * Format ini juga dipakai sebagai PREFIX saat student-details
-     * dan student-transcript dicetak (via %s|... di printf).
+     * Format ini juga digunakan sebagai prefix di student-details
+     * dan student-transcript via printf("%s|%.2f|%d", s, gpa, sks)
+     * yang memanggil toString() secara otomatis.
      */
     @Override
     public String toString() {
