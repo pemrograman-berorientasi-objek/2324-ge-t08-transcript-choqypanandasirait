@@ -1,10 +1,16 @@
+// ==============================
+// FILE: academic/model/Student.java
+// ==============================
 package academic.model;
 
 /**
  * @author 12S24012 Choqy Pananda Sirait
  */
-
+/**
+ * Menyimpan data mahasiswa
+ */
 public class Student {
+
     String id, name, year, studyProgram;
 
     public Student(String id, String name, String year, String studyProgram) {

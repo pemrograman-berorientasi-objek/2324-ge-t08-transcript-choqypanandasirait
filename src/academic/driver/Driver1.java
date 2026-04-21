@@ -1,11 +1,13 @@
+// ==============================
+// FILE: academic/driver/Driver1.java
+// ==============================
 package academic.driver;
 
 import java.util.*;
 import academic.model.*;
 
 /**
- * Main driver program
- * membaca command dari input
+ * Main Program
  */
 public class Driver1 {
 
@@ -13,14 +15,12 @@ public class Driver1 {
 
         Scanner input = new Scanner(System.in);
 
-        // Menyimpan seluruh data
         ArrayList<Lecturer> lecturers = new ArrayList<>();
         ArrayList<Course> courses = new ArrayList<>();
         ArrayList<Student> students = new ArrayList<>();
         ArrayList<CourseOpening> openings = new ArrayList<>();
         ArrayList<Enrollment> enrollments = new ArrayList<>();
 
-        // membaca terus sampai ---
         while (true) {
 
             String line = input.nextLine();
@@ -29,60 +29,41 @@ public class Driver1 {
                 break;
             }
 
-            // pisahkan command dengan #
             String[] data = line.split("#");
 
             switch (data[0]) {
 
-                // tambah dosen
                 case "lecturer-add":
-                    lecturers.add(
-                        new Lecturer(
-                            data[1], data[2], data[3], data[4], data[5]
-                        )
-                    );
+                    lecturers.add(new Lecturer(
+                            data[1], data[2], data[3],
+                            data[4], data[5]));
                     break;
 
-                // tambah matkul
                 case "course-add":
-                    courses.add(
-                        new Course(
-                            data[1],
-                            data[2],
+                    courses.add(new Course(
+                            data[1], data[2],
                             Integer.parseInt(data[3]),
-                            data[4]
-                        )
-                    );
+                            data[4]));
                     break;
 
-                // tambah mahasiswa
                 case "student-add":
-                    students.add(
-                        new Student(
-                            data[1], data[2], data[3], data[4]
-                        )
-                    );
+                    students.add(new Student(
+                            data[1], data[2],
+                            data[3], data[4]));
                     break;
 
-                // buka kelas
                 case "course-open":
-                    openings.add(
-                        new CourseOpening(
-                            data[1], data[2], data[3], data[4]
-                        )
-                    );
+                    openings.add(new CourseOpening(
+                            data[1], data[2],
+                            data[3], data[4]));
                     break;
 
-                // tambah enrollment
                 case "enrollment-add":
-                    enrollments.add(
-                        new Enrollment(
-                            data[1], data[2], data[3], data[4]
-                        )
-                    );
+                    enrollments.add(new Enrollment(
+                            data[1], data[2],
+                            data[3], data[4]));
                     break;
 
-                // input nilai
                 case "enrollment-grade":
                     for (Enrollment e : enrollments) {
                         if (e.match(data[1], data[2], data[3], data[4])) {
@@ -91,7 +72,6 @@ public class Driver1 {
                     }
                     break;
 
-                // remedial
                 case "enrollment-remedial":
                     for (Enrollment e : enrollments) {
                         if (e.match(data[1], data[2], data[3], data[4])) {
@@ -100,52 +80,44 @@ public class Driver1 {
                     }
                     break;
 
-                // detail mahasiswa
                 case "student-details":
-                    showStudentDetail(data[1], students, courses, enrollments);
+                    showStudentDetail(
+                            data[1], students,
+                            courses, enrollments);
                     break;
 
-                // riwayat course
                 case "course-history":
-                    showCourseHistory(data[1], openings, courses, lecturers, enrollments);
+                    showCourseHistory(
+                            data[1], openings,
+                            courses, lecturers,
+                            enrollments);
                     break;
 
-                // transcript mahasiswa
                 case "student-transcript":
-                    showTranscript(data[1], students, courses, enrollments);
+                    showTranscript(
+                            data[1], students,
+                            courses, enrollments);
                     break;
             }
         }
 
-        // output seluruh data akhir
-        for (Lecturer l : lecturers) {
-            System.out.println(l);
-        }
-
-        for (Course c : courses) {
-            System.out.println(c);
-        }
-
-        for (Student s : students) {
-            System.out.println(s);
-        }
-
-        for (Enrollment e : enrollments) {
-            System.out.println(e);
-        }
+        // output akhir
+        for (Lecturer l : lecturers) System.out.println(l);
+        for (Course c : courses) System.out.println(c);
+        for (Student s : students) System.out.println(s);
+        for (Enrollment e : enrollments) System.out.println(e);
 
         input.close();
     }
 
-    /**
-     * menampilkan student details
-     */
+    // ===============================
+    // student-details
+    // ===============================
     static void showStudentDetail(
-        String id,
-        ArrayList<Student> students,
-        ArrayList<Course> courses,
-        ArrayList<Enrollment> enrollments
-    ) {
+            String id,
+            ArrayList<Student> students,
+            ArrayList<Course> courses,
+            ArrayList<Enrollment> enrollments) {
 
         for (Student s : students) {
 
@@ -156,106 +128,171 @@ public class Driver1 {
 
                 for (Enrollment e : enrollments) {
 
-                    if (e.getStudentId().equals(id) && e.getGrade() != null) {
+                    if (e.getStudentId().equals(id)
+                            && e.getGrade() != null) {
 
-                        Course c = findCourse(courses, e.getCourseCode());
+                        Course c =
+                            findCourse(courses,
+                                       e.getCourseCode());
 
-                        total += convert(e.finalGrade()) * c.getCredit();
+                        total += convert(
+                                e.finalGrade())
+                                * c.getCredit();
+
                         sks += c.getCredit();
                     }
                 }
 
-                double gpa = (sks == 0) ? 0 : total / sks;
+                double gpa = total / sks;
 
-                System.out.printf("%s|%.2f|%d\n", s, gpa, sks);
+                System.out.printf(
+                        "%s|%.2f|%d\n",
+                        s, gpa, sks);
             }
         }
     }
 
-    /**
-     * transcript = ambil course terakhir
-     */
+    // ===============================
+    // transcript
+    // ===============================
     static void showTranscript(
-        String id,
-        ArrayList<Student> students,
-        ArrayList<Course> courses,
-        ArrayList<Enrollment> enrollments
-    ) {
+            String id,
+            ArrayList<Student> students,
+            ArrayList<Course> courses,
+            ArrayList<Enrollment> enrollments) {
 
         for (Student s : students) {
 
             if (s.getId().equals(id)) {
 
-                ArrayList<Enrollment> latest = new ArrayList<>();
+                ArrayList<Enrollment> list =
+                        new ArrayList<>();
 
-                // cek setiap course
+                // ambil attempt terakhir tiap course
                 for (Course c : courses) {
 
-                    Enrollment last = null;
+                    Enrollment best = null;
 
-                    // ambil enrollment terakhir
                     for (Enrollment e : enrollments) {
 
                         if (e.getStudentId().equals(id)
-                                && e.getCourseCode().equals(c.getCode())
+                                && e.getCourseCode()
+                                .equals(c.getCode())
                                 && e.getGrade() != null) {
 
-                            last = e;
+                            if (best == null) {
+                                best = e;
+                            } else {
+
+                                int y1 = getYear(e.getYear());
+                                int y2 = getYear(best.getYear());
+
+                                if (y1 > y2) {
+                                    best = e;
+                                } else if (y1 == y2 &&
+                                        semValue(
+                                        e.getSemester())
+                                        >
+                                        semValue(
+                                        best.getSemester())) {
+                                    best = e;
+                                }
+                            }
                         }
                     }
 
-                    if (last != null) {
-                        latest.add(last);
+                    if (best != null) {
+                        list.add(best);
                     }
                 }
+
+                // urut historis
+                Collections.sort(list,
+                    new Comparator<Enrollment>() {
+
+                    public int compare(
+                        Enrollment a,
+                        Enrollment b) {
+
+                        int ya = getYear(a.getYear());
+                        int yb = getYear(b.getYear());
+
+                        if (ya != yb) {
+                            return ya - yb;
+                        }
+
+                        return semValue(
+                                a.getSemester())
+                                -
+                                semValue(
+                                b.getSemester());
+                    }
+                });
 
                 double total = 0;
                 int sks = 0;
 
-                for (Enrollment e : latest) {
+                for (Enrollment e : list) {
 
-                    Course c = findCourse(courses, e.getCourseCode());
+                    Course c =
+                        findCourse(courses,
+                                   e.getCourseCode());
 
-                    total += convert(e.finalGrade()) * c.getCredit();
+                    total += convert(
+                            e.finalGrade())
+                            * c.getCredit();
+
                     sks += c.getCredit();
                 }
 
                 double gpa = total / sks;
 
-                System.out.printf("%s|%.2f|%d\n", s, gpa, sks);
+                System.out.printf(
+                        "%s|%.2f|%d\n",
+                        s, gpa, sks);
 
-                for (Enrollment e : latest) {
+                for (Enrollment e : list) {
                     System.out.println(e);
                 }
             }
         }
     }
 
-    /**
-     * history matkul
-     */
+    // ===============================
+    // course-history
+    // ===============================
     static void showCourseHistory(
-        String code,
-        ArrayList<CourseOpening> openings,
-        ArrayList<Course> courses,
-        ArrayList<Lecturer> lecturers,
-        ArrayList<Enrollment> enrollments
-    ) {
+            String code,
+            ArrayList<CourseOpening> openings,
+            ArrayList<Course> courses,
+            ArrayList<Lecturer> lecturers,
+            ArrayList<Enrollment> enrollments) {
 
         for (CourseOpening co : openings) {
 
             if (co.getCourseCode().equals(code)) {
 
-                Course c = findCourse(courses, code);
+                Course c =
+                    findCourse(courses, code);
 
                 String text = "";
-                String[] arr = co.getLecturers().split(",");
 
-                for (int i = 0; i < arr.length; i++) {
+                String[] arr =
+                    co.getLecturers()
+                    .split(",");
 
-                    Lecturer l = findLecturer(lecturers, arr[i]);
+                for (int i = 0;
+                     i < arr.length; i++) {
 
-                    text += l.getInitial() + " (" + l.getEmail() + ")";
+                    Lecturer l =
+                        findLecturer(
+                            lecturers,
+                            arr[i]);
+
+                    text += l.getInitial()
+                          + " ("
+                          + l.getEmail()
+                          + ")";
 
                     if (i != arr.length - 1) {
                         text += ",";
@@ -263,13 +300,14 @@ public class Driver1 {
                 }
 
                 System.out.println(
-                    c + "|" +
-                    co.getYear() + "|" +
-                    co.getSemester() + "|" +
-                    text
-                );
+                        c + "|" +
+                        co.getYear() + "|" +
+                        co.getSemester() + "|" +
+                        text);
 
-                for (Enrollment e : enrollments) {
+                for (Enrollment e :
+                        enrollments) {
+
                     if (e.sameOpening(co)) {
                         System.out.println(e);
                     }
@@ -278,33 +316,32 @@ public class Driver1 {
         }
     }
 
-    /**
-     * cari course
-     */
-    static Course findCourse(ArrayList<Course> list, String code) {
+    // cari course
+    static Course findCourse(
+            ArrayList<Course> list,
+            String code) {
+
         for (Course c : list) {
-            if (c.getCode().equals(code)) {
+            if (c.getCode().equals(code))
                 return c;
-            }
         }
         return null;
     }
 
-    /**
-     * cari dosen
-     */
-    static Lecturer findLecturer(ArrayList<Lecturer> list, String init) {
+    // cari dosen
+    static Lecturer findLecturer(
+            ArrayList<Lecturer> list,
+            String initial) {
+
         for (Lecturer l : list) {
-            if (l.getInitial().equals(init)) {
+            if (l.getInitial()
+                    .equals(initial))
                 return l;
-            }
         }
         return null;
     }
 
-    /**
-     * konversi nilai huruf ke angka
-     */
+    // konversi nilai
     static double convert(String g) {
 
         switch (g) {
@@ -318,15 +355,31 @@ public class Driver1 {
         }
     }
 
-    /**
-     * Nested Class (syarat tugas)
-     */
+    static int getYear(String s) {
+        return Integer.parseInt(
+                s.split("/")[0]);
+    }
+
+    static int semValue(String s) {
+        if (s.equals("odd")) return 1;
+        return 2;
+    }
+
+    // ==================================
+    // NESTED CLASS (syarat tugas)
+    // ==================================
     static class Lecturer {
 
-        String id, name, initial, email, study;
+        String id, name,
+               initial,
+               email,
+               study;
 
-        Lecturer(String id, String name, String initial,
-                 String email, String study) {
+        Lecturer(String id,
+                 String name,
+                 String initial,
+                 String email,
+                 String study) {
 
             this.id = id;
             this.name = name;
@@ -344,8 +397,11 @@ public class Driver1 {
         }
 
         public String toString() {
-            return id + "|" + name + "|" +
-                   initial + "|" + email + "|" + study;
+            return id + "|" +
+                   name + "|" +
+                   initial + "|" +
+                   email + "|" +
+                   study;
         }
     }
 }
